@@ -20,7 +20,7 @@ class Users(models.Model):
     full_name = models.CharField(max_length=55, blank=False) # full_name VARCHAR(55) NOT NULL
     gender = models.ForeignKey(Genders, on_delete=models.CASCADE) # gender_id BIGINT NOT NULL // FOREIGN KEY(gender_id) REFERENCES tbl_genders(gender_Id) ON DELETE CASCADE
     birth_date = models.DateField(blank=False) # birth_date DATE NOT NULL
-    adress = models.CharField(max_length=255, blank=False) #adress VARCHAR(255) NOT NULL
+    address = models.CharField(max_length=255, blank=False) #address VARCHAR(255) NOT NULL
     contact_number = models.CharField(max_length=55, blank=False) # contact_number VARCHAR(55) NOT NULL
     email = models.EmailField(max_length=55, blank=True) #email VARCHAR(55) FEFAULT NULL
     username =models.CharField(max_length=55, blank=False, unique=True) # username VARCHAR(55) NOT NULL UNIQUE

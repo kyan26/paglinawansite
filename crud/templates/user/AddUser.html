@@ -1,0 +1,200 @@
+{% extends "layout/base.html" %}
+
+
+{% block 'title' %}Add User{% endblock 'title' %}
+
+{% block 'content' %}
+
+{% include "include/sidebar.html" %}
+
+
+
+<div class="p-4 sm:ml-64 mt-16 md:mt-14">
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Add User</h1>
+            <p class="text-sm text-gray-500">Create a new user account</p>
+        </div>
+
+        <form action="/user/add" method="post">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- Full Name -->
+                <div>
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="full_name"
+                        id="full_name"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="Enter full name"
+                        required>
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">
+                        Gender
+                    </label>
+
+                    <select
+                        name="gender"
+                        id="gender"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        required>
+
+                        <option value="">Select Gender</option>
+
+                        {% for gender in genders %}
+                            <option value="{{ gender.gender_id }}">
+                                {{ gender.gender }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <!-- Birth Date -->
+                <div>
+                    <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Birth Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="birth_date"
+                        id="birth_date"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        required>
+                </div>
+
+                <!-- Address -->
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                        Address
+                    </label>
+
+                    <input
+                        type="text"
+                        name="address"
+                        id="address"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="Enter address"
+                        required>
+                </div>
+
+                <!-- Contact Number -->
+                <div>
+                    <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contact Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="contact_number"
+                        id="contact_number"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="09XXXXXXXXX"
+                        required>
+                </div>
+            
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="Enter password"
+                        required>
+                </div>
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="Enter username"
+                        required>
+                </div>
+
+                <!-- Password -->
+            <div>
+                <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password
+            </label>
+
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        id="confirm_password"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="Confirm password"
+                        required>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
+                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="example@email.com">
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-6">
+
+                <a href="/user/list/"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium
+                    px-5 py-2.5 rounded-lg mr-2">
+                    Back
+                </a>
+
+                <button
+                    type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                    px-5 py-2.5 rounded-lg">
+
+                    Save User
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock 'content' %}
