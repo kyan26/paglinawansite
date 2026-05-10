@@ -1,7 +1,18 @@
-setTimeout(() => {
-    const successToastMessage = document.getElementById('toast-success')
 
-    if (successToastMessage) {
-        successToastMessage.style.display = 'none'
-    }
-}, 3000)
+document.addEventListener('DOMContentLoaded', function () {
+
+    console.log('Toast JS Loaded');
+
+    setTimeout(function () {
+
+        const toastMessages = document.querySelectorAll('.toast-message');
+
+        toastMessages.forEach(function (toast) {
+
+            toast.remove();
+
+        });
+
+    }, 3000);
+
+});

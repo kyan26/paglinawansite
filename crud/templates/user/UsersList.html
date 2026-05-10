@@ -1,46 +1,242 @@
 {% extends "layout/base.html" %}
-
-{% block 'title' %}
-User List
-{% endblock 'title' %}
-
+{% block 'title' %}User List{% endblock 'title' %}
 {% block 'content' %}
-
 {% include "include/Sidebar.html" %}
 {% include "include/ToastMessage.html" %}
-<div class="p-2 sm:ml-64 mt-64 md:mt-14">   
-    <div class="relative overflow-x-auto">
-        <table class="w-full">
-            <thead class="text-xs text-left text-white bg-blue-600">
+
+<div class="p-4 sm:ml-64 mt-14">
+
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white">User List</h1>
+        <p class="text-sm text-slate-400">Manage all registered users</p>
+    </div>
+
+    <form method="GET" class="mb-4 relative" onsubmit="handleFormSubmit(event)">
+        <div class="flex gap-2">
+            <input
+                type="text"
+                id="searchInput"
+                name="search"
+                value="{{ search|default:'' }}"
+                placeholder="Search users..."
+                autocomplete="off"
+                oninput="fetchSuggestions(this.value)"
+                onkeydown="handleKeyDown(event)"
+                class="w-full md:w-1/3 px-4 py-2.5 bg-[#1e293b] border border-[#334155] text-white 
+                       placeholder-slate-500 text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] 
+                       focus:border-[#6366f1] focus:outline-none">
+            <button type="submit"
+                class="bg-[#6366f1] hover:bg-[#818cf8] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                Search
+            </button>
+        </div>
+        <ul id="suggestionsList"
+            class="absolute z-50 w-full md:w-1/3 bg-[#1e293b] border border-[#334155]
+                   rounded-lg shadow-xl mt-1 hidden max-h-60 overflow-y-auto">
+        </ul>
+    </form>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="hidden flex justify-center items-center py-16">
+        <div class="flex flex-col items-center gap-3">
+            <svg class="animate-spin h-8 w-8 text-[#6366f1]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span class="text-sm text-slate-400">Loading users...</span>
+        </div>
+    </div>
+
+    <div class="rounded-xl border border-[#334155] overflow-hidden" id="userTable">
+        <table class="w-full text-sm">
+            <thead class="bg-[#6366f1] text-white text-xs uppercase tracking-wider">
                 <tr>
-                    <th class="px-6 py-3">Full Name</th>
-                    <th class="px-6 py-3">Gender</th>
-                    <th class="px-6 py-3">Birth Date</th>
-                    <th class="px-6 py-3">Address</th>
-                    <th class="px-6 py-3">Contact Number</th>
-                    <th class="px-6 py-3">Email</th>
-                    <th class="px-6 py-3">Action</th>
+                    <th class="px-6 py-4 text-left">Photo</th>
+                    <th class="px-6 py-4 text-left">Full Name</th>
+                    <th class="px-6 py-4 text-left">Gender</th>
+                    <th class="px-6 py-4 text-left">Birth Date</th>
+                    <th class="px-6 py-4 text-left">Address</th>
+                    <th class="px-6 py-4 text-left">Contact</th>
+                    <th class="px-6 py-4 text-left">Email</th>
+                    <th class="px-6 py-4 text-left">Action</th>
                 </tr>
             </thead>
-            <tbody class="text-xs text-black">
-                 {% for user in users  %} 
-                <tr class=" hover:bg-gray-100 border-b border-gray-200">
-                    <td class="px-6 py-3">{{user.full_name }}</td> 
-                    <td class="px-6 py-3">{{ user.gender.gender }}</td>
-                    <td class="px-6 py-3">{{ user.birth_date }}</td> 
-                    <td class="px-6 py-3">{{ user.address }}</td> 
-                    <td class="px-6 py-3">{{ user.contact_number }}</td>  
-                    <td class="px-6 py-3">{{ user.email }}</td>
+            <tbody>
+                {% for user in users %}
+                <tr class="bg-[#1e293b] border-b border-[#334155] hover:bg-[#334155] transition-colors">
                     <td class="px-6 py-3">
-                        <div class="inline-flex shadow-sm">
-                            <a href="#" class="bg-green-600 px-3 py-2.5 font-medium rounded-sm text-white hover:bg-green-700 hover:outline-none">Edit</a>
-                            <a href="#" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
-                        </td>
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover ring-2 ring-[#6366f1]">
+                        {% else %}
+                            <div class="h-10 w-10 rounded-full bg-[#334155] flex items-center justify-center text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 text-white font-medium">{{ user.full_name }}</td>
+                    <td class="px-6 py-3 text-slate-300">{{ user.gender.gender }}</td>
+                    <td class="px-6 py-3 text-slate-300">{{ user.birth_date }}</td>
+                    <td class="px-6 py-3 text-slate-300">{{ user.address }}</td>
+                    <td class="px-6 py-3 text-slate-300">{{ user.contact_number }}</td>
+                    <td class="px-6 py-3 text-slate-300">{{ user.email }}</td>
+                    <td class="px-6 py-3">
+                        <div class="flex gap-2">
+                            <a href="/user/edit/{{ user.user_id }}"
+                                class="bg-[#6366f1] hover:bg-[#818cf8] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                                Edit
+                            </a>
+                            <a href="/user/delete/{{ user.user_id }}"
+                                class="bg-[#f43f5e] hover:bg-rose-400 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
                 </tr>
-               {% endfor %}
+                {% empty %}
+                <tr class="bg-[#1e293b]">
+                    <td colspan="8" class="px-6 py-10 text-center text-slate-500">
+                        No users found.
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- PAGINATION -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="flex items-center justify-between mt-4 px-1">
+        <p class="text-sm text-slate-400">
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+            of {{ page_obj.paginator.count }} users
+        </p>
+        <div class="flex items-center gap-1">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% if search %}&search={{ search }}{% endif %}"
+                class="px-2 py-1 text-sm rounded-lg border border-[#334155] text-slate-400 hover:bg-[#1e293b] transition-colors">«</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}"
+                class="px-3 py-1 text-sm rounded-lg border border-[#334155] text-slate-400 hover:bg-[#1e293b] transition-colors">Prev</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="px-3 py-1 text-sm rounded-lg bg-[#6366f1] text-white font-medium">{{ num }}</span>
+                {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                    <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}"
+                        class="px-3 py-1 text-sm rounded-lg border border-[#334155] text-slate-400 hover:bg-[#1e293b] transition-colors">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}"
+                class="px-3 py-1 text-sm rounded-lg border border-[#334155] text-slate-400 hover:bg-[#1e293b] transition-colors">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}"
+                class="px-2 py-1 text-sm rounded-lg border border-[#334155] text-slate-400 hover:bg-[#1e293b] transition-colors">»</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
 </div>
+
+<script>
+let selectedIndex = -1;
+let currentSuggestions = [];
+let debounceTimer;
+
+function showLoading() {
+    document.getElementById('loadingSpinner').classList.remove('hidden');
+    document.getElementById('userTable').classList.add('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').classList.add('hidden');
+    document.getElementById('userTable').classList.remove('hidden');
+}
+
+function handleFormSubmit(event) {
+    event.preventDefault();
+    showLoading();
+    const form = event.target;
+    setTimeout(() => { form.submit(); }, 3000);
+}
+
+function fetchSuggestions(query) {
+    clearTimeout(debounceTimer);
+    const list = document.getElementById('suggestionsList');
+    if (!query.trim()) { list.classList.add('hidden'); list.innerHTML = ''; return; }
+    debounceTimer = setTimeout(() => {
+        fetch(`/user/search-suggestions/?q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                currentSuggestions = data.suggestions || [];
+                selectedIndex = -1;
+                renderSuggestions(query);
+            });
+    }, 250);
+}
+
+function renderSuggestions(query) {
+    const list = document.getElementById('suggestionsList');
+    if (currentSuggestions.length === 0) { list.classList.add('hidden'); list.innerHTML = ''; return; }
+    list.innerHTML = currentSuggestions.map((item, i) => {
+        const highlighted = item.replace(
+            new RegExp(`(${escapeRegex(query)})`, 'gi'),
+            '<span class="font-bold text-[#818cf8]">$1</span>'
+        );
+        return `<li class="px-4 py-2 text-sm text-slate-300 hover:bg-[#334155] cursor-pointer suggestion-item"
+            data-index="${i}"
+            onmousedown="selectSuggestion('${escapeHtml(item)}')"
+            onmouseover="highlightItem(${i})">
+            ${highlighted}
+        </li>`;
+    }).join('');
+    list.classList.remove('hidden');
+}
+
+function highlightItem(index) {
+    selectedIndex = index;
+    document.querySelectorAll('.suggestion-item').forEach((el, i) => {
+        el.classList.toggle('bg-[#334155]', i === index);
+    });
+}
+
+function handleKeyDown(event) {
+    const items = document.querySelectorAll('.suggestion-item');
+    if (event.key === 'ArrowDown') { event.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, items.length - 1); highlightItem(selectedIndex); }
+    else if (event.key === 'ArrowUp') { event.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, 0); highlightItem(selectedIndex); }
+    else if (event.key === 'Enter') { if (selectedIndex >= 0 && currentSuggestions[selectedIndex]) { event.preventDefault(); selectSuggestion(currentSuggestions[selectedIndex]); } }
+    else if (event.key === 'Escape') { document.getElementById('suggestionsList').classList.add('hidden'); }
+}
+
+function selectSuggestion(value) {
+    const input = document.getElementById('searchInput');
+    input.value = value;
+    document.getElementById('suggestionsList').classList.add('hidden');
+    showLoading();
+    setTimeout(() => { input.closest('form').submit(); }, 3000);
+}
+
+function clearSearch() {
+    const input = document.getElementById('searchInput');
+    input.value = '';
+    document.getElementById('suggestionsList').classList.add('hidden');
+    showLoading();
+    setTimeout(() => { input.closest('form').submit(); }, 3000);
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#searchInput') && !e.target.closest('#suggestionsList')) {
+        document.getElementById('suggestionsList').classList.add('hidden');
+    }
+});
+
+function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function escapeHtml(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+</script>
 
 {% endblock 'content' %}
