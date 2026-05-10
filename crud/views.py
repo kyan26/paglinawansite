@@ -7,6 +7,9 @@ from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
+import re
+import os
+from datetime import date, datetime
 
 # Create your views here.
 
@@ -104,20 +107,16 @@ def user_list(request):
 def add_user(request):
     try:
         if request.method == 'POST':
-            fullName = request.POST.get('full_name', '').strip()
+            fullName = request.POST.get('full_name', '').strip().title()
             gender = request.POST.get('gender', '').strip()
             birthDate = request.POST.get('birth_date', '').strip()
-            address = request.POST.get('address', '').strip()
+            address = request.POST.get('address', '').strip().title()
             contactNumber = request.POST.get('contact_number', '').strip()
             email = request.POST.get('email', '').strip()
             username = request.POST.get('username', '').strip()
             password = request.POST.get('password', '')
             confirmPassword = request.POST.get('confirm_password', '')
             profilePicture = request.FILES.get('profile_picture')
-
-            # ── Server-side validation ──────────────────────────────
-            import re
-            from datetime import date
 
             errors = []
 
@@ -140,7 +139,6 @@ def add_user(request):
                 errors.append('Birth date is required.')
             else:
                 try:
-                    from datetime import datetime
                     birth = datetime.strptime(birthDate, '%Y-%m-%d').date()
                     today = date.today()
                     age = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
@@ -164,12 +162,15 @@ def add_user(request):
                 errors.append('Contact number is required.')
             elif not re.fullmatch(r'\d+', contactNumber):
                 errors.append('Contact number must contain numbers only.')
+            elif not (contactNumber.startswith('09') or contactNumber.startswith('63')):
+                errors.append('Contact number must start with 09 or 63.')
             elif contactNumber.startswith('09') and len(contactNumber) != 11:
                 errors.append('Contact number starting with 09 must be 11 digits.')
             elif contactNumber.startswith('63') and len(contactNumber) != 12:
                 errors.append('Contact number starting with 63 must be 12 digits.')
-            elif not (contactNumber.startswith('09') or contactNumber.startswith('63')):
-                errors.append('Contact number must start with 09 or 63.')
+            else:
+                if Users.objects.filter(contact_number=contactNumber).exists():
+                    errors.append('Contact number already exists.')
 
             # Username
             if not username:
@@ -201,6 +202,8 @@ def add_user(request):
             if email:
                 if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):
                     errors.append('Please enter a valid email address.')
+                elif Users.objects.filter(email__iexact=email).exists():
+                    errors.append('Email already exists.')
 
             # ── If any errors, stop and show them ──────────────────
             if errors:
@@ -239,28 +242,24 @@ def user_delete(request, user_id):
         user = Users.objects.get(user_id=user_id)
         user.delete()
         messages.success(request, 'User deleted successfully.')
-        return redirect('/user/list')       # 👈 fixed
+        return redirect('/user/list')
 
     except Users.DoesNotExist:
         messages.error(request, 'User not found.')
-        return redirect('/user/list')       # 👈 fixed
+        return redirect('/user/list')
 
     except Exception as e:
         messages.error(request, f'Error occurred during delete: {e}')
-        return redirect('/user/list')       # 👈 fixed
+        return redirect('/user/list')
 
 def user_edit(request, user_id):
     try:
         user = Users.objects.get(user_id=user_id)
         if request.method == 'POST':
-
-            import re
-            from datetime import date, datetime
-
-            fullName = request.POST.get('full_name', '').strip()
+            fullName = request.POST.get('full_name', '').strip().title()
             gender = request.POST.get('gender', '').strip()
             birthDate = request.POST.get('birth_date', '').strip()
-            address = request.POST.get('address', '').strip()
+            address = request.POST.get('address', '').strip().title()
             contactNumber = request.POST.get('contact_number', '').strip()
             email = request.POST.get('email', '').strip()
 
@@ -314,11 +313,16 @@ def user_edit(request, user_id):
                 errors.append('Contact number starting with 09 must be 11 digits.')
             elif contactNumber.startswith('63') and len(contactNumber) != 12:
                 errors.append('Contact number starting with 63 must be 12 digits.')
+            else:
+                if Users.objects.filter(contact_number=contactNumber).exclude(user_id=user_id).exists():
+                    errors.append('Contact number already exists.')
 
             # Email (optional)
             if email:
                 if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):
                     errors.append('Please enter a valid email address.')
+                elif Users.objects.filter(email__iexact=email).exclude(user_id=user_id).exists():
+                    errors.append('Email already exists.')
 
             if errors:
                 for error in errors:
@@ -339,7 +343,6 @@ def user_edit(request, user_id):
 
             if request.FILES.get('profile_picture'):
                 if user.profile_picture:
-                    import os
                     if os.path.isfile(user.profile_picture.path):
                         os.remove(user.profile_picture.path)
                 user.profile_picture = request.FILES.get('profile_picture')
@@ -356,12 +359,11 @@ def user_edit(request, user_id):
         return render(request, 'user/UserEdit.html', data)
     except Exception as e:
         return HttpResponse(f'Error occurred during user edit: {e}')
-    
+
 def user_delete_picture(request, user_id):
     try:
         user = Users.objects.get(user_id=user_id)
         if user.profile_picture:
-            import os
             if os.path.isfile(user.profile_picture.path):
                 os.remove(user.profile_picture.path)
             user.profile_picture = None
