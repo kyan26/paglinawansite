@@ -11,8 +11,6 @@ import re
 import os
 from datetime import date, datetime
 
-# Create your views here.
-
 def gender_list(request):
     try:
         genders = Genders.objects.all()
@@ -26,8 +24,17 @@ def gender_list(request):
 def add_gender(request):
     try:
         if request.method == 'POST':
-            gender = request.POST.get('gender')
-            Genders.objects.create(gender=gender).save()
+            gender = request.POST.get('gender', '').strip().title()
+
+            if not gender:
+                messages.error(request, 'Gender is required.')
+                return render(request, 'gender/AddGender.html')
+
+            if Genders.objects.filter(gender__iexact=gender).exists():
+                messages.error(request, 'Gender already exists.')
+                return render(request, 'gender/AddGender.html')
+
+            Genders.objects.create(gender=gender)
             messages.success(request, 'Gender added successfully!')
             return redirect('/gender/list')
         else:
@@ -39,13 +46,22 @@ def edit_gender(request, genderId):
     try:
         if request.method == 'POST':
             genderObj = Genders.objects.get(pk=genderId)
-            gender = request.POST.get('gender')
+            gender = request.POST.get('gender', '').strip().title()
+
+            if not gender:
+                messages.error(request, 'Gender is required.')
+                data = {'gender': genderObj}
+                return render(request, 'gender/EditGender.html', data)
+
+            if Genders.objects.filter(gender__iexact=gender).exclude(pk=genderId).exists():
+                messages.error(request, 'Gender already exists.')
+                data = {'gender': genderObj}
+                return render(request, 'gender/EditGender.html', data)
+
             genderObj.gender = gender
             genderObj.save()
             messages.success(request, 'Gender updated successfully!')
-            data = {
-                'gender': genderObj
-            }
+            data = {'gender': genderObj}
             return render(request, 'gender/EditGender.html', data)
         else:
             genderObj = Genders.objects.get(pk=genderId)
@@ -120,7 +136,7 @@ def add_user(request):
 
             errors = []
 
-            # Full name
+            # Full name (duplicates allowed)
             if not fullName:
                 errors.append('Full name is required.')
             elif len(fullName) < 2:
@@ -172,7 +188,7 @@ def add_user(request):
                 if Users.objects.filter(contact_number=contactNumber).exists():
                     errors.append('Contact number already exists.')
 
-            # Username
+            # Username (no duplicates allowed)
             if not username:
                 errors.append('Username is required.')
             elif len(username) < 3:
@@ -205,14 +221,12 @@ def add_user(request):
                 elif Users.objects.filter(email__iexact=email).exists():
                     errors.append('Email already exists.')
 
-            # ── If any errors, stop and show them ──────────────────
             if errors:
                 for error in errors:
                     messages.error(request, error)
                 genderObj = Genders.objects.all()
                 return render(request, 'user/AddUser.html', {'genders': genderObj})
 
-            # ── Save ───────────────────────────────────────────────
             Users.objects.create(
                 full_name=fullName,
                 gender=Genders.objects.get(pk=gender),
@@ -265,7 +279,7 @@ def user_edit(request, user_id):
 
             errors = []
 
-            # Full name
+            # Full name (duplicates allowed)
             if not fullName:
                 errors.append('Full name is required.')
             elif len(fullName) < 2:
@@ -333,7 +347,6 @@ def user_edit(request, user_id):
                     'genders': genders
                 })
 
-            # ── Save ───────────────────────────────────────────────
             user.full_name = fullName
             user.gender_id = gender
             user.birth_date = birthDate

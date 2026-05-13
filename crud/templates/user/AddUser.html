@@ -3,7 +3,7 @@
 {% block 'content' %}
 {% include "include/sidebar.html" %}
 {% include "include/ToastMessage.html" %}
-
+ 
 <div class="p-4 sm:ml-64 mt-14">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-white">Add User</h1>
@@ -171,6 +171,12 @@
     </div>
 </div>
 
+<style>
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(0.7);
+        cursor: pointer;
+    }
+</style>
 
 <script>
 
