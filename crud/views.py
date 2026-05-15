@@ -276,10 +276,11 @@ def user_edit(request, user_id):
             address = request.POST.get('address', '').strip().title()
             contactNumber = request.POST.get('contact_number', '').strip()
             email = request.POST.get('email', '').strip()
+            username = request.POST.get('username', '').strip()
 
             errors = []
 
-            # Full name (duplicates allowed)
+            # Full name
             if not fullName:
                 errors.append('Full name is required.')
             elif len(fullName) < 2:
@@ -338,6 +339,18 @@ def user_edit(request, user_id):
                 elif Users.objects.filter(email__iexact=email).exclude(user_id=user_id).exists():
                     errors.append('Email already exists.')
 
+            # Username
+            if not username:
+                errors.append('Username is required.')
+            elif len(username) < 3:
+                errors.append('Username must be at least 3 characters.')
+            elif re.search(r'\s', username):
+                errors.append('Username cannot contain spaces.')
+            elif re.search(r'[^a-zA-Z0-9_]', username):
+                errors.append('Username may only contain letters, numbers, and underscores.')
+            elif Users.objects.filter(username__iexact=username).exclude(user_id=user_id).exists():
+                errors.append('Username already exists.')
+
             if errors:
                 for error in errors:
                     messages.error(request, error)
@@ -353,6 +366,7 @@ def user_edit(request, user_id):
             user.address = address
             user.contact_number = contactNumber
             user.email = email
+            user.username = username
 
             if request.FILES.get('profile_picture'):
                 if user.profile_picture:
@@ -423,3 +437,66 @@ def user_search_suggestions(request):
 
     except Exception as e:
         return JsonResponse({'suggestions': [], 'error': str(e)})
+
+
+def check_username(request):
+    try:
+        username = request.GET.get('username', '').strip()
+        user_id = request.GET.get('user_id', '').strip()
+
+        if not username:
+            return JsonResponse({'available': False, 'message': 'Username is required.'})
+
+        query = Users.objects.filter(username__iexact=username)
+        if user_id:
+            query = query.exclude(user_id=user_id)
+
+        if query.exists():
+            return JsonResponse({'available': False, 'message': 'Username already exists, please choose another.'})
+
+        return JsonResponse({'available': True, 'message': 'Username is available.'})
+
+    except Exception as e:
+        return JsonResponse({'available': False, 'message': str(e)})
+
+
+def check_email(request):
+    try:
+        email = request.GET.get('email', '').strip()
+        user_id = request.GET.get('user_id', '').strip()
+
+        if not email:
+            return JsonResponse({'available': True, 'message': ''})
+
+        query = Users.objects.filter(email__iexact=email)
+        if user_id:
+            query = query.exclude(user_id=user_id)
+
+        if query.exists():
+            return JsonResponse({'available': False, 'message': 'Email already exists, please use another.'})
+
+        return JsonResponse({'available': True, 'message': 'Email is available.'})
+
+    except Exception as e:
+        return JsonResponse({'available': False, 'message': str(e)})
+
+
+def check_contact(request):
+    try:
+        contact_number = request.GET.get('contact_number', '').strip()
+        user_id = request.GET.get('user_id', '').strip()
+
+        if not contact_number:
+            return JsonResponse({'available': False, 'message': 'Contact number is required.'})
+
+        query = Users.objects.filter(contact_number=contact_number)
+        if user_id:
+            query = query.exclude(user_id=user_id)
+
+        if query.exists():
+            return JsonResponse({'available': False, 'message': 'Contact number already exists, please use another.'})
+
+        return JsonResponse({'available': True, 'message': 'Contact number is available.'})
+
+    except Exception as e:
+        return JsonResponse({'available': False, 'message': str(e)})

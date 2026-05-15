@@ -49,6 +49,15 @@
                 </div>
             </div>
 
+            <!-- Username -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-300 mb-2">Username</label>
+                <input type="text" name="username" id="usernameInput" value="{{ user.username }}" required
+                    class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white 
+                           text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none transition-colors">
+                <p id="usernameFeedback" class="mt-1 text-xs hidden flex items-center gap-1"></p>
+            </div>
+
             <!-- Full Name -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
@@ -61,8 +70,11 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-slate-300 mb-2">Gender</label>
                 <select name="gender" required
-                    class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white 
-                           text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
+                    class="w-full px-4 py-2.5 pr-10 bg-[#0f172a] border border-[#334155] text-white 
+                    text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none"
+                    style="appearance: none; -webkit-appearance: none; -moz-appearance: none;
+                    background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2394a3b8%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E');
+                    background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 16px 16px;">
                     {% for gender in genders %}
                     <option value="{{ gender.gender_id }}" {% if gender.gender_id == user.gender_id %}selected{% endif %}>
                         {{ gender.gender }}
@@ -90,22 +102,26 @@
             <!-- Contact Number -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-slate-300 mb-2">Contact Number</label>
-                <input type="text" name="contact_number" value="{{ user.contact_number }}" required
+                <input type="text" name="contact_number" id="contactInput" value="{{ user.contact_number }}" maxlength="12" required
+                    oninput="validateContact(this)"
                     class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white 
                            text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
+                <p id="contactFeedback" class="mt-1 text-xs hidden flex items-center gap-1"></p>
             </div>
 
             <!-- Email -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
-                <input type="email" name="email" value="{{ user.email }}"
+                <input type="email" name="email" id="emailInput" value="{{ user.email }}"
+                    oninput="validateEmail()"
                     class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white 
                            text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
+                <p id="emailFeedback" class="mt-1 text-xs hidden flex items-center gap-1"></p>
             </div>
 
             <!-- Buttons -->
             <div class="flex gap-3">
-                <button type="submit"
+                <button type="submit" id="submitBtn"
                     class="bg-[#6366f1] hover:bg-[#818cf8] text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
                     Save Changes
                 </button>
@@ -119,6 +135,13 @@
     </div>
 </div>
 
+<style>
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(0.7);
+        cursor: pointer;
+    }
+</style>
+
 <script>
 function previewImage(event) {
     const preview = document.getElementById('imagePreview');
@@ -129,6 +152,225 @@ function previewImage(event) {
         preview.classList.remove('hidden');
         if (placeholder) placeholder.classList.add('hidden');
     }
+}
+
+// =====================
+// SHARED REFS
+// =====================
+const submitBtn = document.getElementById('submitBtn');
+const currentUserId = "{{ user.user_id }}";
+
+// =====================
+// USERNAME — real-time check
+// =====================
+const usernameInput = document.getElementById('usernameInput');
+const usernameFeedback = document.getElementById('usernameFeedback');
+const originalUsername = "{{ user.username }}".toLowerCase();
+
+let usernameDebounce = null;
+
+usernameInput.addEventListener('input', function () {
+    const value = this.value.trim();
+    clearTimeout(usernameDebounce);
+
+    if (!value || value.toLowerCase() === originalUsername) {
+        resetUsernameField();
+        return;
+    }
+
+    usernameDebounce = setTimeout(() => {
+        fetch(`/user/check-username/?username=${encodeURIComponent(value)}&user_id=${currentUserId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    usernameInput.style.borderColor = '#22c55e';
+                    usernameInput.style.boxShadow = '0 0 0 2px rgba(34,197,94,0.3)';
+                    usernameFeedback.innerHTML = `<span class="text-green-400">✓ Username is available.</span>`;
+                    usernameFeedback.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    usernameInput.style.borderColor = '#f43f5e';
+                    usernameInput.style.boxShadow = '0 0 0 2px rgba(244,63,94,0.3)';
+                    usernameFeedback.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#f43f5e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        </svg>
+                        <span class="text-[#f43f5e]">✕ Username already exists, please choose another.</span>`;
+                    usernameFeedback.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            })
+            .catch(() => resetUsernameField());
+    }, 500);
+});
+
+function resetUsernameField() {
+    usernameInput.style.borderColor = '';
+    usernameInput.style.boxShadow = '';
+    usernameFeedback.innerHTML = '';
+    usernameFeedback.classList.add('hidden');
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+}
+
+// =====================
+// ICON HELPERS
+// =====================
+const warningIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#f43f5e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>`;
+
+// =====================
+// CONTACT NUMBER — real-time check
+// =====================
+const contactInput = document.getElementById('contactInput');
+const contactFeedback = document.getElementById('contactFeedback');
+const originalContact = "{{ user.contact_number }}";
+
+let contactDebounce = null;
+
+function validateContact(input) {
+    const value = input.value;
+    clearTimeout(contactDebounce);
+
+    // Reset if empty or unchanged
+    if (!value || value === originalContact) {
+        resetContactField();
+        return;
+    }
+
+    // Format checks first
+    if (/[^0-9]/.test(value)) {
+        setContactError('Numbers only.'); return;
+    }
+    if (!(value.startsWith('09') || value.startsWith('63'))) {
+        setContactError('Must start with 09 or 63.'); return;
+    }
+    if (value.startsWith('09') && value.length < 11) {
+        setContactError('Too short — must be 11 digits.'); return;
+    }
+    if (value.startsWith('09') && value.length > 11) {
+        setContactError('Too long — must be 11 digits.'); return;
+    }
+    if (value.startsWith('63') && value.length < 12) {
+        setContactError('Too short — must be 12 digits.'); return;
+    }
+    if (value.startsWith('63') && value.length > 12) {
+        setContactError('Too long — must be 12 digits.'); return;
+    }
+
+    // Format OK — check server for duplicates
+    contactDebounce = setTimeout(() => {
+        fetch(`/user/check-contact/?contact_number=${encodeURIComponent(value)}&user_id=${currentUserId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    contactInput.style.borderColor = '#22c55e';
+                    contactInput.style.boxShadow = '0 0 0 2px rgba(34,197,94,0.3)';
+                    contactFeedback.innerHTML = `<span class="text-green-400">✓ Contact number is available.</span>`;
+                    contactFeedback.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    setContactError('✕ Contact number already exists, please use another.');
+                }
+            })
+            .catch(() => resetContactField());
+    }, 500);
+}
+
+function setContactError(msg) {
+    contactInput.style.borderColor = '#f43f5e';
+    contactInput.style.boxShadow = '0 0 0 2px rgba(244,63,94,0.3)';
+    contactFeedback.innerHTML = `${warningIcon}<span class="text-[#f43f5e]">${msg}</span>`;
+    contactFeedback.classList.remove('hidden');
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+}
+
+function resetContactField() {
+    contactInput.style.borderColor = '';
+    contactInput.style.boxShadow = '';
+    contactFeedback.innerHTML = '';
+    contactFeedback.classList.add('hidden');
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+}
+
+// =====================
+// EMAIL — real-time check
+// =====================
+const emailInput = document.getElementById('emailInput');
+const emailFeedback = document.getElementById('emailFeedback');
+const originalEmail = "{{ user.email }}".toLowerCase();
+
+let emailDebounce = null;
+
+emailInput.addEventListener('input', function () {
+    const value = this.value.trim();
+    clearTimeout(emailDebounce);
+
+    // Reset if empty or unchanged
+    if (!value || value.toLowerCase() === originalEmail) {
+        resetEmailField();
+        return;
+    }
+
+    // Basic format check first
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+        emailInput.style.borderColor = '#f43f5e';
+        emailInput.style.boxShadow = '0 0 0 2px rgba(244,63,94,0.3)';
+        emailFeedback.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#f43f5e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <span class="text-[#f43f5e]">Please enter a valid email address.</span>`;
+        emailFeedback.classList.remove('hidden');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        return;
+    }
+
+    // Format OK — check server for duplicates
+    emailDebounce = setTimeout(() => {
+        fetch(`/user/check-email/?email=${encodeURIComponent(value)}&user_id=${currentUserId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    emailInput.style.borderColor = '#22c55e';
+                    emailInput.style.boxShadow = '0 0 0 2px rgba(34,197,94,0.3)';
+                    emailFeedback.innerHTML = `<span class="text-green-400">✓ Email is available.</span>`;
+                    emailFeedback.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    emailInput.style.borderColor = '#f43f5e';
+                    emailInput.style.boxShadow = '0 0 0 2px rgba(244,63,94,0.3)';
+                    emailFeedback.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#f43f5e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        </svg>
+                        <span class="text-[#f43f5e]">✕ Email already exists, please use another.</span>`;
+                    emailFeedback.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            })
+            .catch(() => resetEmailField());
+    }, 500);
+});
+
+function resetEmailField() {
+    emailInput.style.borderColor = '';
+    emailInput.style.boxShadow = '';
+    emailFeedback.innerHTML = '';
+    emailFeedback.classList.add('hidden');
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
 }
 </script>
 

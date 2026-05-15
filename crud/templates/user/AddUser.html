@@ -45,22 +45,24 @@
                         oninput="validateFullName()"
                         class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white placeholder-slate-500
                                text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
-                    <p id="fullNameMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="fullNameMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Gender -->
                 <div>
-                    <label class="block text-sm font-semibold text-white mb-3 mt-1">Gender</label>
-                    <select name="gender" id="gender" required
-                        onchange="validateGender()"
-                        class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white
-                               text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
+                   <label class="block text-sm font-medium text-slate-300 mb-2">Gender</label>
+                <select name="gender" required
+                    class="w-full px-4 py-2.5 pr-10 bg-[#0f172a] border border-[#334155] text-white 
+                    text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none"
+                    style="appearance: none; -webkit-appearance: none; -moz-appearance: none;
+                    background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2394a3b8%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E');
+                    background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 16px 16px;">
                         <option value="">Select Gender</option>
                         {% for gender in genders %}
                             <option value="{{ gender.gender_id }}">{{ gender.gender }}</option>
                         {% endfor %}
                     </select>
-                    <p id="genderMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="genderMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Birth Date -->
@@ -70,7 +72,7 @@
                         onchange="validateBirthDate()"
                         class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white
                                text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
-                    <p id="birthDateMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="birthDateMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Address -->
@@ -80,7 +82,7 @@
                         oninput="validateAddress()"
                         class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white placeholder-slate-500
                                text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
-                    <p id="addressMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="addressMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Contact Number -->
@@ -91,7 +93,7 @@
                         oninput="validatePHNumber(this)"
                         class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white placeholder-slate-500
                                text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
-                    <p id="contactMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="contactMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Username -->
@@ -101,7 +103,8 @@
                         oninput="validateUsername()"
                         class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white placeholder-slate-500
                                text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
-                    <p id="usernameMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <!-- Same style as confirm password: icon + colored span -->
+                    <p id="usernameMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Password -->
@@ -120,7 +123,7 @@
                             </svg>
                         </button>
                     </div>
-                    <p id="passwordMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="passwordMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
                 <!-- Confirm Password -->
@@ -145,12 +148,14 @@
 
                 <!-- Email -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                        Email <span class="text-slate-500 text-xs">(optional)</span>
+                    </label>
                     <input type="email" name="email" id="email" placeholder="example@email.com"
                         oninput="validateEmail()"
                         class="w-full px-4 py-2.5 bg-[#0f172a] border border-[#334155] text-white placeholder-slate-500
                                text-sm rounded-lg focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] focus:outline-none">
-                    <p id="emailMsg" class="hidden mt-1 text-xs text-[#f43f5e]"></p>
+                    <p id="emailMsg" class="hidden mt-1 text-xs flex items-center gap-1"></p>
                 </div>
 
             </div>
@@ -161,7 +166,7 @@
                     class="bg-[#334155] hover:bg-[#475569] text-slate-300 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
                     Back
                 </a>
-                <button type="submit"
+                <button type="submit" id="submitBtn"
                     class="bg-[#10b981] hover:bg-emerald-400 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
                     Save User
                 </button>
@@ -181,31 +186,50 @@
 <script>
 
 // =====================
+// ICON HELPERS
+// =====================
+const warningIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#f43f5e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>`;
+
+const checkIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>`;
+
+// =====================
 // HELPER FUNCTIONS
 // =====================
 function showError(msgId, inputId, message) {
     const msg = document.getElementById(msgId);
     const input = document.getElementById(inputId);
-    msg.textContent = message;
+    msg.innerHTML = `${warningIcon}<span class="text-[#f43f5e]">${message}</span>`;
     msg.classList.remove('hidden');
-    input.classList.add('border-[#f43f5e]');
-    input.classList.remove('border-[#10b981]', 'border-[#334155]');
+    input.style.borderColor = '#f43f5e';
+    input.style.boxShadow = '0 0 0 2px rgba(244,63,94,0.3)';
 }
 
-function showSuccess(msgId, inputId) {
+function showSuccess(msgId, inputId, message = '') {
     const msg = document.getElementById(msgId);
     const input = document.getElementById(inputId);
-    msg.classList.add('hidden');
-    input.classList.add('border-[#10b981]');
-    input.classList.remove('border-[#f43f5e]', 'border-[#334155]');
+    input.style.borderColor = '#10b981';
+    input.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.3)';
+    if (message) {
+        msg.innerHTML = `${checkIcon}<span class="text-[#10b981]">${message}</span>`;
+        msg.classList.remove('hidden');
+    } else {
+        msg.classList.add('hidden');
+    }
 }
 
 function resetField(msgId, inputId) {
     const msg = document.getElementById(msgId);
     const input = document.getElementById(inputId);
+    msg.innerHTML = '';
     msg.classList.add('hidden');
-    input.classList.remove('border-[#f43f5e]', 'border-[#10b981]');
-    input.classList.add('border-[#334155]');
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
 }
 
 // =====================
@@ -250,35 +274,102 @@ function validateAddress() {
 
 function validatePHNumber(input) {
     const value = input.value;
-    const msg = document.getElementById('contactMsg');
-    input.classList.remove('border-[#f43f5e]', 'border-[#10b981]');
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
     input.setCustomValidity('');
-    msg.classList.add('hidden');
+    document.getElementById('contactMsg').classList.add('hidden');
 
-    if (value === '') { input.classList.add('border-[#334155]'); return; }
-    if (/[^0-9]/.test(value)) {
-        showError('contactMsg', 'contact_number', 'Numbers only.');
-        input.setCustomValidity('Numbers only'); return;
-    }
-    if (!(value.startsWith('09') || value.startsWith('63'))) {
-        showError('contactMsg', 'contact_number', 'Must start with 09 or 63.');
-        input.setCustomValidity('Must start with 09 or 63'); return;
-    }
+    if (value === '') { return; }
+    if (/[^0-9]/.test(value)) { showError('contactMsg', 'contact_number', 'Numbers only.'); input.setCustomValidity('Numbers only'); return; }
+    if (!(value.startsWith('09') || value.startsWith('63'))) { showError('contactMsg', 'contact_number', 'Must start with 09 or 63.'); input.setCustomValidity('Must start with 09 or 63'); return; }
     if (value.startsWith('09') && value.length < 11) { showError('contactMsg', 'contact_number', 'Too short — must be 11 digits.'); return; }
     if (value.startsWith('09') && value.length > 11) { showError('contactMsg', 'contact_number', 'Too long — must be 11 digits.'); return; }
     if (value.startsWith('63') && value.length < 12) { showError('contactMsg', 'contact_number', 'Too short — must be 12 digits.'); return; }
     if (value.startsWith('63') && value.length > 12) { showError('contactMsg', 'contact_number', 'Too long — must be 12 digits.'); return; }
 
-    showSuccess('contactMsg', 'contact_number');
+    // Format OK — check server for duplicates
+    clearTimeout(window.contactDebounce);
+    window.contactDebounce = setTimeout(() => {
+        fetch(`/user/check-contact/?contact_number=${encodeURIComponent(value)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    showSuccess('contactMsg', 'contact_number', 'Contact number is available.');
+                } else {
+                    showError('contactMsg', 'contact_number', '✕ Contact number already exists, please use another.');
+                }
+            })
+            .catch(() => showSuccess('contactMsg', 'contact_number'));
+    }, 500);
 }
+
+// =====================
+// USERNAME — real-time server check
+// =====================
+let usernameDebounce = null;
+let usernameAvailable = false;
 
 function validateUsername() {
     const value = document.getElementById('username').value.trim();
-    if (value === '') { resetField('usernameMsg', 'username'); return false; }
-    if (value.length < 3) { showError('usernameMsg', 'username', 'Username must be at least 3 characters.'); return false; }
-    if (/\s/.test(value)) { showError('usernameMsg', 'username', 'Username cannot contain spaces.'); return false; }
-    if (/[^a-zA-Z0-9_]/.test(value)) { showError('usernameMsg', 'username', 'Only letters, numbers, and underscores allowed.'); return false; }
-    showSuccess('usernameMsg', 'username');
+    clearTimeout(usernameDebounce);
+
+    if (value === '') { resetField('usernameMsg', 'username'); usernameAvailable = false; return false; }
+    if (value.length < 3) { showError('usernameMsg', 'username', 'Username must be at least 3 characters.'); usernameAvailable = false; return false; }
+    if (/\s/.test(value)) { showError('usernameMsg', 'username', 'Username cannot contain spaces.'); usernameAvailable = false; return false; }
+    if (/[^a-zA-Z0-9_]/.test(value)) { showError('usernameMsg', 'username', 'Only letters, numbers, and underscores allowed.'); usernameAvailable = false; return false; }
+
+    usernameDebounce = setTimeout(() => {
+        fetch(`/user/check-username/?username=${encodeURIComponent(value)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    showSuccess('usernameMsg', 'username', 'Username is available.');
+                    usernameAvailable = true;
+                } else {
+                    showError('usernameMsg', 'username', '✕ Username already exists, please choose another.');
+                    usernameAvailable = false;
+                }
+            })
+            .catch(() => { resetField('usernameMsg', 'username'); usernameAvailable = true; });
+    }, 500);
+
+    return true;
+}
+
+// =====================
+// EMAIL — real-time server check
+// =====================
+let emailDebounce = null;
+let emailAvailable = true;
+
+function validateEmail() {
+    const value = document.getElementById('email').value.trim();
+    clearTimeout(emailDebounce);
+
+    if (value === '') { resetField('emailMsg', 'email'); emailAvailable = true; return true; }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+        showError('emailMsg', 'email', 'Please enter a valid email address.');
+        emailAvailable = false;
+        return false;
+    }
+
+    emailDebounce = setTimeout(() => {
+        fetch(`/user/check-email/?email=${encodeURIComponent(value)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    showSuccess('emailMsg', 'email', 'Email is available.');
+                    emailAvailable = true;
+                } else {
+                    showError('emailMsg', 'email', '✕ Email already exists, please use another.');
+                    emailAvailable = false;
+                }
+            })
+            .catch(() => { resetField('emailMsg', 'email'); emailAvailable = true; });
+    }, 500);
+
     return true;
 }
 
@@ -293,15 +384,6 @@ function validatePassword() {
     return true;
 }
 
-function validateEmail() {
-    const value = document.getElementById('email').value.trim();
-    if (value === '') { resetField('emailMsg', 'email'); return true; }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) { showError('emailMsg', 'email', 'Please enter a valid email address.'); return false; }
-    showSuccess('emailMsg', 'email');
-    return true;
-}
-
 function checkPasswordMatch() {
     const password = document.getElementById('password').value;
     const confirm = document.getElementById('confirm_password').value;
@@ -310,29 +392,21 @@ function checkPasswordMatch() {
 
     if (confirm === '') {
         msg.classList.add('hidden');
-        confirmInput.classList.remove('border-[#f43f5e]', 'border-[#10b981]');
-        confirmInput.classList.add('border-[#334155]');
+        confirmInput.style.borderColor = '';
+        confirmInput.style.boxShadow = '';
         return false;
     }
 
     msg.classList.remove('hidden');
     if (password === confirm) {
-        msg.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-            <span class="text-[#10b981]">Passwords match</span>`;
-        confirmInput.classList.remove('border-[#f43f5e]', 'border-[#334155]');
-        confirmInput.classList.add('border-[#10b981]');
+        msg.innerHTML = `${checkIcon}<span class="text-[#10b981]">Passwords match</span>`;
+        confirmInput.style.borderColor = '#10b981';
+        confirmInput.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.3)';
         return true;
     } else {
-        msg.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#f43f5e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            </svg>
-            <span class="text-[#f43f5e]">Passwords do not match</span>`;
-        confirmInput.classList.remove('border-[#10b981]', 'border-[#334155]');
-        confirmInput.classList.add('border-[#f43f5e]');
+        msg.innerHTML = `${warningIcon}<span class="text-[#f43f5e]">Passwords do not match</span>`;
+        confirmInput.style.borderColor = '#f43f5e';
+        confirmInput.style.boxShadow = '0 0 0 2px rgba(244,63,94,0.3)';
         return false;
     }
 }
@@ -341,20 +415,37 @@ function checkPasswordMatch() {
 // VALIDATE ALL ON SUBMIT
 // =====================
 function validateForm(event) {
+    if (!usernameAvailable) {
+        const usernameVal = document.getElementById('username').value.trim();
+        if (usernameVal.length >= 3) {
+            showError('usernameMsg', 'username', '✕ Username already exists, please choose another.');
+            event.preventDefault();
+            document.getElementById('username').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+    }
+
+    if (!emailAvailable) {
+        const emailVal = document.getElementById('email').value.trim();
+        if (emailVal.length > 0) {
+            showError('emailMsg', 'email', '✕ Email already exists, please use another.');
+            event.preventDefault();
+            document.getElementById('email').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+    }
+
     const results = [
         validateFullName(),
         validateGender(),
         validateBirthDate(),
         validateAddress(),
-        validateUsername(),
         validatePassword(),
-        validateEmail(),
         checkPasswordMatch(),
     ];
     if (results.includes(false)) {
         event.preventDefault();
-        // Scroll to first error
-        const firstError = document.querySelector('.border-\\[\\#f43f5e\\]');
+        const firstError = document.querySelector('[style*="border-color: rgb(244"]');
         if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
